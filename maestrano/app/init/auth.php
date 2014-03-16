@@ -20,12 +20,14 @@ if (!defined('_JEXEC')){
   #define( 'JPATH_PLUGIN', dirname(__FILE__) );
   define( 'DS', DIRECTORY_SEPARATOR );
   define( 'JPATH_BASE', dirname(__FILE__).DS.'..'.DS.'..'.DS.'..'.DS );
+  chdir(JPATH_BASE);
   require_once ( JPATH_BASE .'includes'.DS.'defines.php' );
   require_once ( JPATH_BASE .'includes'.DS.'framework.php' );
   #require_once ( JPATH_PLUGIN . DS .'php' . DS .'authenticate.php');
-  $mainframe =& JFactory::getApplication('site');
+  $mainframe =& JFactory::getApplication('administrator');
   $mainframe->initialise();
 }
+
 
 //-----------------------------------------------
 // Perform your custom preparation code
@@ -35,6 +37,9 @@ if (!defined('_JEXEC')){
 // for construction
 $opts = array();
 $opts['db_connection'] = JFactory::getDBO();
-$opts['jsession'] =& JFactory::getSession();
+
+
+$maestrano = MaestranoService::getInstance();
+$maestrano->setAfterSsoSignInPath('/administrator');
 
 

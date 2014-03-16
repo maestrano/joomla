@@ -27,6 +27,7 @@ class MnoSsoUser extends MnoSsoBaseUser
     
     // Assign new attributes
     $this->connection = $opts['db_connection'];
+    
   }
   
   
@@ -37,29 +38,41 @@ class MnoSsoUser extends MnoSsoBaseUser
    *
    * @return boolean whether the user was successfully set in session or not
    */
-  // protected function setInSession()
-  // {
-  //   // First set $conn variable (need global variable?)
-  //   $conn = $this->connection;
-  //   
-  //   $sel1 = $conn->query("SELECT ID,name,lastlogin FROM user WHERE ID = $this->local_id");
-  //   $chk = $sel1->fetch();
-  //   if ($chk["ID"] != "") {
-  //       $now = time();
-  //       
-  //       // Set session
-  //       $this->session['userid'] = $chk['ID'];
-  //       $this->session['username'] = stripslashes($chk['name']);
-  //       $this->session['lastlogin'] = $now;
-  //       
-  //       // Update last login timestamp
-  //       $upd1 = $conn->query("UPDATE user SET lastlogin = '$now' WHERE ID = $this->local_id");
-  //       
-  //       return true;
-  //   } else {
-  //       return false;
-  //   }
-  // }
+  protected function setInSession()
+  {
+    $db = $this->connection;
+    
+    
+    if ($this->local_id) {
+        $user = JUser::getInstance($this->local_id);
+        
+        // Register the needed session variables
+        $session = JFactory::getSession();
+        $session->set('user', $user);
+        
+    		// Check to see the the session already exists.
+    		$app = JFactory::getApplication();
+    		$app->checkSession();
+    
+        
+        // Update the user related fields for the Joomla sessions table.
+        $db->setQuery(
+          'UPDATE '.$db->quoteName('#__session') .
+          ' SET '.$db->quoteName('guest').' = '.$db->quote($user->get('guest')).',' .
+          '	'.$db->quoteName('username').' = '.$db->quote($user->get('username')).',' .
+          '	'.$db->quoteName('userid').' = '.(int) $user->get('id') .
+          ' WHERE '.$db->quoteName('session_id').' = '.$db->quote($session->getId())
+        );
+        $db->query();
+
+        // Hit the user last visit field
+        $user->setLastVisit();
+        
+        return true;
+    } else {
+        return false;
+    }
+  }
   
   
   /**
@@ -74,16 +87,26 @@ class MnoSsoUser extends MnoSsoBaseUser
     $lid = null;
     
     if ($this->accessScope() == 'private') {
-			$config = JFactory::getConfig();
-			$rootUser = $config->get('root_user');
-      $session = JFactory::getSession();
-      $session->set('user', $rootUser);
       
-      // First set $conn variable (need global variable?)
+      // Set a temporary admin user
+      $admin = JUser::getInstance();
+      $admin->username = 'maestrano';
+      
+			$config = JFactory::getConfig();
+      $config->set('root_user','maestrano');
+      $session = JFactory::getSession();
+      $session->set('user', $admin);
+      
+      // Create the user
       $user = $this->buildLocalUser();
       $user->save();
       
-      var_dump($user);
+      
+      // Remove the root user
+      $config->set('root_user',null);
+      $session->set('user', null);
+      
+      
       
       // Create user
       if ($user->id) {
@@ -112,6 +135,7 @@ class MnoSsoUser extends MnoSsoBaseUser
       'username'  => $this->uid,
       'password'  => $password,
       'password2' => $password,
+      'groups'    => $this->getRoleToAssign()
     );
     $user->bind($attr);
     
@@ -176,8 +200,8 @@ class MnoSsoUser extends MnoSsoBaseUser
     $db->setQuery($query);
     $result = $db->loadResult();
     
-    if ($result && $result['id']) {
-      return $result['id'];
+    if ($result) {
+      return intval($result);
     }
     
     return null;
@@ -199,8 +223,8 @@ class MnoSsoUser extends MnoSsoBaseUser
     $db->setQuery($query);
     $result = $db->loadResult();
     
-    if ($result && $result['id']) {
-      return $result['id'];
+    if ($result) {
+      return intval($result);
     }
     
     return null;
@@ -214,6 +238,8 @@ class MnoSsoUser extends MnoSsoBaseUser
    */
    protected function syncLocalDetails()
    {
+     $db = $this->connection;
+     
      if($this->local_id) {
        $fields = Array(
          $db->quoteName('name') . ' = '. $db->quote($this->name . ' ' . $this->surname),
@@ -241,6 +267,8 @@ class MnoSsoUser extends MnoSsoBaseUser
    */
   protected function setLocalUid()
   {
+    $db = $this->connection;
+    
     if($this->local_id) {
       $fields = Array(
         $db->quoteName('mno_uid') . ' = '. $db->quote($this->uid),

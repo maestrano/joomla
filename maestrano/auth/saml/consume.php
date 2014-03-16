@@ -20,15 +20,15 @@ require MAESTRANO_ROOT . '/app/init/auth.php';
 
 // Destroy session completely to avoid garbage (undeclared classes)
 // but keep previous url if defined
-session_start();
+//session_start();
 if(isset($_SESSION['mno_previous_url'])) {
 	$previous_url = $_SESSION['mno_previous_url'];
 }
-session_unset();
-session_destroy();
+//session_unset();
+//session_destroy();
 
 // Restart session and inject previous url if defined
-session_start();
+//session_start();
 if(isset($previous_url)) {
 	$_SESSION['mno_previous_url'] = $previous_url;
 }
