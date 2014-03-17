@@ -11,6 +11,7 @@ require MAESTRANO_ROOT . '/app/init/base.php';
 // Require your app specific files here
 //-----------------------------------------------
 define('APP_DIR', realpath(MAESTRANO_ROOT . '/../'));
+chdir(APP_DIR);
 
 // Load Joomla
 if (!defined('_JEXEC')){
@@ -18,12 +19,13 @@ if (!defined('_JEXEC')){
   define( '_VALID_MOS', 1 );
   // JPATH_BASE should point to Joomla!'s root directory
   #define( 'JPATH_PLUGIN', dirname(__FILE__) );
+  
   define( 'DS', DIRECTORY_SEPARATOR );
-  define( 'JPATH_BASE', dirname(__FILE__).DS.'..'.DS.'..'.DS.'..'.DS );
-  chdir(JPATH_BASE);
+  define( 'JPATH_BASE', realpath(dirname(__FILE__).DS.'..'.DS.'..'.DS.'..').DS );
+  //var_dump(JPATH_BASE);
   require_once ( JPATH_BASE .'includes'.DS.'defines.php' );
   require_once ( JPATH_BASE .'includes'.DS.'framework.php' );
-  #require_once ( JPATH_PLUGIN . DS .'php' . DS .'authenticate.php');
+  
   $mainframe =& JFactory::getApplication('administrator');
   $mainframe->initialise();
 }
