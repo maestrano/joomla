@@ -16,7 +16,7 @@ define("MAESTRANO_ROOT", realpath(dirname(__FILE__) . '/../../'));
 
 error_reporting(E_ALL);
 
-require MAESTRANO_ROOT . '/app/init/auth.php';
+require MAESTRANO_ROOT . '/app/init/auth_site.php';
 
 // Destroy session completely to avoid garbage (undeclared classes)
 // but keep previous url if defined
@@ -63,15 +63,7 @@ try {
         // Refuse access otherwise
         if ($sso_user->local_id) {
           $sso_user->signIn();
-          // Post request to second authentication controller dealing with 'site' (and not 'administrator')
-          // authentication
-          echo "<form action='/maestrano/auth/saml/consume_site.php' method='post' name='frm'>
-                <input type='hidden' name='SAMLResponse' value='{$_POST['SAMLResponse']}'>
-                </form>
-                <script type='text/javaScript'>
-                document.frm.submit();
-                </script>";
-          
+          header("Location: " . $maestrano->getAfterSsoSignInPath());
         } else {
           header("Location: " . $maestrano->getSsoUnauthorizedUrl());
         }

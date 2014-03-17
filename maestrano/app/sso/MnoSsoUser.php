@@ -50,7 +50,7 @@ class MnoSsoUser extends MnoSsoBaseUser
         $session = JFactory::getSession();
         $session->set('user', $user);
         
-    		// Check to see the the session already exists.
+    		// Check to see if the session already exists.
     		$app = JFactory::getApplication();
     		$app->checkSession();
     
@@ -64,6 +64,15 @@ class MnoSsoUser extends MnoSsoBaseUser
           ' WHERE '.$db->quoteName('session_id').' = '.$db->quote($session->getId())
         );
         $db->query();
+        
+        // Check wether we should redirect to 'site' or 'administrator'
+        $redirect = '/';
+        if ($user->authorise('core.login.admin')) {
+          $redirect = '/administrator';
+          error_log("AUTHORIZED");
+        }
+        $maestrano = MaestranoService::getInstance();
+        $maestrano->setAfterSsoSignInPath($redirect);
 
         // Hit the user last visit field
         $user->setLastVisit();
@@ -73,7 +82,6 @@ class MnoSsoUser extends MnoSsoBaseUser
         return false;
     }
   }
-  
   
   /**
    * Used by createLocalUserOrDenyAccess to create a local user 
@@ -154,20 +162,7 @@ class MnoSsoUser extends MnoSsoBaseUser
     $role = []; // User
     
     $default_user_role = [];
-    $default_admin_role = [];
-    
-    // Get the Super Users role
-    $db = $this->connection;
-    $query = $db->getQuery(true);
-    $query->select($db->quoteName('id'));
-    $query->from($db->quoteName('#__usergroups'));
-    $query->where($db->quoteName('title') . ' = '. $db->quote('Super Users'));
-    $db->setQuery($query);
-    $result = $db->loadResult();
-    
-    if ($result && $result['id']) {
-      $default_admin_role[] = $result['id'];
-    }
+    $default_admin_role = [8];
     
     if ($this->app_owner) {
       $role = $default_admin_role; // Admin

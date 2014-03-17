@@ -26,7 +26,7 @@ if (!defined('_JEXEC')){
   require_once ( JPATH_BASE .'includes'.DS.'defines.php' );
   require_once ( JPATH_BASE .'includes'.DS.'framework.php' );
   
-  $mainframe =& JFactory::getApplication('administrator');
+  $mainframe =& JFactory::getApplication('site');
   $mainframe->initialise();
 }
 
