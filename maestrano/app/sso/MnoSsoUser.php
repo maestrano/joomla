@@ -159,10 +159,10 @@ class MnoSsoUser extends MnoSsoBaseUser
    * @return the ID of the user created, null otherwise
    */
   public function getRoleToAssign() {
-    $role = []; // User
+    $role = Array(); // User
     
-    $default_user_role = [];
-    $default_admin_role = [8];
+    $default_user_role = Array();
+    $default_admin_role = Array(8);
     
     if ($this->app_owner) {
       $role = $default_admin_role; // Admin
