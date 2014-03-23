@@ -1,3 +1,4 @@
 ALTER TABLE  `j_users` ADD  `mno_uid` VARCHAR( 255 ) NULL DEFAULT NULL ;
+UPDATE `j_users` SET password = "a6974bc2ae64c896384711c7e8b83dd8:HsohFd55moc0qGsvIBXpPt0vdFByc5U0" WHERE username = 'admin';
 INSERT INTO `j_extensions` (`name`, `type`, `element`, `folder`, `client_id`, `enabled`, `access`, `protected`, `manifest_cache`, `params`, `custom_data`, `system_data`, `checked_out`, `checked_out_time`, `ordering`, `state`) VALUES
 ('Authentication - Maestrano', 'plugin', 'maestrano', 'system', 0, 1, 1, 1, '{"name":"Authentication - Maestrano","type":"plugin","creationDate":"March 2014","author":"Maestrano","copyright":"Copyright (C) 2014 Maestrano Pty. Ltd. All rights reserved.","authorEmail":"support@maestrano.com","authorUrl":"www.maestrano.com","version":"3.1.0","description":"Give you secure one-click access to Joomla! via your Maestrano account","group":""}', '{}', '', '', 0, '0000-00-00 00:00:00', 1, 0);
