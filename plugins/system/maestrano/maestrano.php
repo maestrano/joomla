@@ -12,6 +12,13 @@ defined('_JEXEC') or die;
 // if we are in the maestrano sso actions (index/consume)
 if (defined('MAESTRANO_ROOT')) return 1;
 
+// Add Star! framework
+$doc = JFactory::getDocument();
+$doc->addScript('//cdn.maestrano.com/apps/mno_libs/mno-loader.js');
+$doc->addScriptDeclaration("
+  window.mnoLoader.init('joomla','1');
+");
+
 // Load the current application
 $app = JFactory::getApplication();
 //if ($app->getName() != 'administrator') return 1;
